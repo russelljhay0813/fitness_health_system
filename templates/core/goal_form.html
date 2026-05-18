@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0">Set Your Fitness Goal</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_goal_type" class="form-label">Goal Type</label>
+                        <select name="goal_type" id="id_goal_type" class="form-select" required>
+                            <option value="">Select your goal</option>
+                            <option value="lose_weight">Lose Weight</option>
+                            <option value="gain_muscle">Gain Muscle</option>
+                            <option value="maintain_fitness">Maintain Fitness</option>
+                            <option value="improve_endurance">Improve Endurance</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_target_metric" class="form-label">Target Value</label>
+                        <input type="number" name="target_metric" id="id_target_metric" 
+                               class="form-control" required step="0.1" 
+                               placeholder="e.g., 5.0 (for losing 5kg)">
+                        <small class="text-muted">What number do you want to achieve?</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_deadline" class="form-label">Deadline Date</label>
+                        <input type="date" name="deadline" id="id_deadline" 
+                               class="form-control" required>
+                        <small class="text-muted">When do you want to achieve this goal?</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning w-100">Create Goal</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

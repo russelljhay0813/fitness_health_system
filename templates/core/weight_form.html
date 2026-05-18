@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">Log Your Weight</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_weight_kg" class="form-label">Weight (kg)</label>
+                        <input type="number" name="weight_kg" id="id_weight_kg" 
+                               class="form-control" required step="0.1" 
+                               placeholder="Enter your weight in kilograms">
+                        <small class="text-muted">Example: 70.5 kg</small>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong>Your BMI will be automatically calculated</strong>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-info w-100">💾 Save Weight</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

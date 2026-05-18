@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Update Goal Progress</h4>
+            </div>
+            <div class="card-body">
+                <h5>Goal: {{ object.get_goal_type_display }}</h5>
+                <p>Target: {{ object.target_metric }}</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_current_value" class="form-label">Current Progress</label>
+                        <input type="number" name="current_value" id="id_current_value" 
+                               class="form-control" required step="0.1" 
+                               value="{{ object.current_value }}">
+                        <small class="text-muted">Update your current progress</small>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong>Current Status:</strong> {{ object.get_status_display }}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Update Progress</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

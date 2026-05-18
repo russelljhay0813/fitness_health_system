@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="mb-4">Analytics Dashboard</h1>
+
+<!-- Workout Trends Chart -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Weekly Workout Analysis</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="workoutChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Weight Trends Chart -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Weight & BMI Trends</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="weightChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calorie Balance Chart -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Calorie Balance (Last 30 Days)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="calorieChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Metrics -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0">Progress Rate</h5>
+            </div>
+            <div class="card-body">
+                <p>Workout Consistency: <strong>{{ progress_rate.workout_consistency|floatformat:1 }}%</strong> change</p>
+                <p>Weight Change: <strong>{{ progress_rate.weight_change|floatformat:1 }} kg</strong> lost this month</p>
+                <p>Workouts This Month: <strong>{{ progress_rate.workout_count_recent }}</strong> (Previous: {{ progress_rate.workout_count_previous }})</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info">
+                <h5 class="mb-0">Goals Progress</h5>
+            </div>
+            <div class="card-body">
+                {% for goal in goals_data %}
+                    <div class="mb-2">
+                        <strong>{{ goal.name }}</strong>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: {{ goal.progress }}%">
+                                {{ goal.progress|floatformat:0 }}%
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No goals set yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Workout Chart
+const workoutCtx = document.getElementById('workoutChart').getContext('2d');
+new Chart(workoutCtx, {
+    type: 'line',
+    data: {
+        labels: {{ workout_trends|safe|default:'[]' }},
+        datasets: [{
+            label: 'Workout Duration (minutes)',
+            data: [{% for key, value in workout_trends.items %}{{ value.duration }},{% endfor %}],
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    }
+});
+
+// Weight Chart
+const weightCtx = document.getElementById('weightChart').getContext('2d');
+new Chart(weightCtx, {
+    type: 'line',
+    data: {
+        labels: [{% for data in weight_trends %}'{{ data.date|date:"M d" }}',{% endfor %}],
+        datasets: [{
+            label: 'Weight (kg)',
+            data: [{% for data in weight_trends %}{{ data.weight }},{% endfor %}],
+            borderColor: 'rgb(153, 102, 255)',
+            tension: 0.1
+        }]
+    }
+});
+
+// Calorie Balance Chart
+const calorieCtx = document.getElementById('calorieChart').getContext('2d');
+new Chart(calorieCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for data in calorie_trends %}'{{ data.date|date:"M d" }}',{% endfor %}],
+        datasets: [{
+            label: 'Calories Intake',
+            data: [{% for data in calorie_trends %}{{ data.calories_intake }},{% endfor %}],
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgb(255, 99, 132)',
+            borderWidth: 1
+        }, {
+            label: 'Calories Burned',
+            data: [{% for data in calorie_trends %}{{ data.calories_burned }},{% endfor %}],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgb(54, 162, 235)',
+            borderWidth: 1
+        }]
+    }
+});
+</script>
+{% endblock %}

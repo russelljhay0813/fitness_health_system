@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Log Your Workout</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_workout_type" class="form-label">Workout Type</label>
+                        <select name="workout_type" id="id_workout_type" class="form-select" required>
+                            <option value="">Select workout type</option>
+                            <option value="running">Running</option>
+                            <option value="gym">Gym Session</option>
+                            <option value="cycling">Cycling</option>
+                            <option value="home">Home Workout</option>
+                            <option value="swimming">Swimming</option>
+                            <option value="yoga">Yoga</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_duration_minutes" class="form-label">Duration (minutes)</label>
+                        <input type="number" name="duration_minutes" id="id_duration_minutes" 
+                               class="form-control" required min="1" max="480">
+                        <small class="text-muted">How long did you exercise?</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_intensity" class="form-label">Intensity Level</label>
+                        <select name="intensity" id="id_intensity" class="form-select" required>
+                            <option value="">Select intensity</option>
+                            <option value="low">Low - Light effort, can talk easily</option>
+                            <option value="moderate">Moderate - Breathing heavier, can talk in short sentences</option>
+                            <option value="high">High - Difficult to talk, breathing hard</option>
+                            <option value="intense">Intense - Maximum effort, cannot talk</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_notes" class="form-label">Notes (Optional)</label>
+                        <textarea name="notes" id="id_notes" class="form-control" rows="3" 
+                                  placeholder="How did it feel? Any achievements?"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Save Workout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
