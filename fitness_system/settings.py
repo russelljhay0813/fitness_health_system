@@ -1,10 +1,10 @@
 import os
-import sys
+import dj_database_url
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security
+# Security - Use environment variable for secret key
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Custom apps
     'users',
     'workouts',
     'nutrition',
@@ -32,7 +33,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this for static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,7 +62,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fitness_system.wsgi.application'
 
-# Database - Use SQLite for Render (or PostgreSQL)
+# Database - Use SQLite as fallback, PostgreSQL if available
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -69,13 +70,13 @@ DATABASES = {
     }
 }
 
-# Use PostgreSQL if DATABASE_URL is provided (Render automatic)
-import dj_database_url
+# Override with PostgreSQL if DATABASE_URL exists
 database_url = os.environ.get('DATABASE_URL')
 if database_url:
     DATABASES['default'] = dj_database_url.config(
         default=database_url,
-        conn_max_age=600
+        conn_max_age=600,
+        conn_health_checks=True,
     )
 
 # Password validation
@@ -91,7 +92,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
@@ -100,7 +101,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# WhiteNoise for static files
+# WhiteNoise configuration
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Authentication
@@ -109,11 +110,18 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
-# CSRF Settings
+# CSRF settings
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'https://*.render.com',
 ]
 
-# Default primary key
+# Security settings for production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
