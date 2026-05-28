@@ -3,19 +3,22 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser, UserProfile
 
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    height = forms.FloatField(required=True, help_text="Height in centimeters")
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-input'}))
+    height = forms.FloatField(required=True, help_text="Height in centimeters", 
+                              widget=forms.NumberInput(attrs={'class': 'form-input', 'step': '0.1'}))
     
     class Meta:
         model = CustomUser
         fields = ['username', 'email', 'height', 'password1', 'password2']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-input'}),
+        }
     
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
+        user.height = self.cleaned_data['height']
         if commit:
-            user.save()
-            user.height = self.cleaned_data['height']
             user.save()
         return user
 

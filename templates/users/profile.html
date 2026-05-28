@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">My Profile</h1>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column - Profile Info -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Profile Information</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <div style="font-size: 4rem;"></div>
+                    <h3 class="mt-2">{{ user.username }}</h3>
+                    <p class="text-muted">{{ user.email }}</p>
+                </div>
+                
+                <hr>
+                
+                <div class="text-start">
+                    <p><strong>Full Name:</strong> {{ user.get_full_name|default:"Not set" }}</p>
+                    <p><strong>Height:</strong> {{ user.height|default:"Not set" }} cm</p>
+                    <p><strong>Member Since:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistics Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Your Stats</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3 text-center">
+                    <h2 class="text-primary">{{ total_workouts }}</h2>
+                    <small class="text-muted">Total Workouts</small>
+                </div>
+                <div class="mb-3 text-center">
+                    <h2 class="text-primary">{{ total_meals }}</h2>
+                    <small class="text-muted">Meals Logged</small>
+                </div>
+                <div class="mb-3 text-center">
+                    <h2 class="text-primary">{{ total_weight_entries }}</h2>
+                    <small class="text-muted">Weight Entries</small>
+                </div>
+                <div class="text-center">
+                    <h2 class="text-primary">{{ streak }}</h2>
+                    <small class="text-muted">Day Streak</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column - Edit Form -->
+    <div class="col-md-8">
+        <!-- Edit Profile Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Edit Profile</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="first_name" class="form-control" 
+                                   value="{{ user.first_name }}" placeholder="Enter first name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" 
+                                   value="{{ user.last_name }}" placeholder="Enter last name">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" 
+                               value="{{ user.email }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Height (cm)</label>
+                        <input type="number" name="height" class="form-control" 
+                               value="{{ user.height }}" step="0.1" placeholder="e.g., 175">
+                        <small class="text-muted">Used for BMI calculation</small>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-3">Fitness Goals</h6>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Weight Goal (kg)</label>
+                        <input type="number" name="weight_goal" class="form-control" 
+                               value="{{ profile.weight_goal }}" step="0.1" placeholder="Target weight">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Daily Calorie Goal</label>
+                        <input type="number" name="daily_calorie_goal" class="form-control" 
+                               value="{{ profile.daily_calorie_goal|default:2000 }}" placeholder="Daily calorie target">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Weekly Workout Goal</label>
+                        <input type="number" name="workout_goal_weekly" class="form-control" 
+                               value="{{ profile.workout_goal_weekly|default:3 }}" placeholder="Workouts per week">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Current Weight & BMI -->
+        {% if latest_weight %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Current Health Metrics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-6">
+                        <h3>{{ latest_weight.weight_kg }} kg</h3>
+                        <small class="text-muted">Current Weight</small>
+                    </div>
+                    <div class="col-md-6">
+                        <h3>{{ bmi|floatformat:1 }}</h3>
+                        <small class="text-muted">BMI - {{ bmi_category }}</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="progress">
+                        <div class="progress-bar" style="width: {% widthratio latest_weight.weight_kg 100 100 %}%"></div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <small class="text-muted">Last updated: {{ latest_weight.date|date:"F j, Y" }}</small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Active Goals -->
+        {% if active_goals %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Active Goals</h5>
+            </div>
+            <div class="card-body">
+                {% for goal in active_goals %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ goal.get_goal_type_display }}</strong>
+                        <span>{{ goal.current_value|floatformat:1 }} / {{ goal.target_metric|floatformat:1 }}</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: {{ goal.calculate_progress }}%">
+                            {{ goal.calculate_progress|floatformat:0 }}%
+                        </div>
+                    </div>
+                    <small class="text-muted">Deadline: {{ goal.deadline|date:"F j, Y" }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
