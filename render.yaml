@@ -2,15 +2,18 @@ services:
   - type: web
     name: fitness-health-system
     runtime: python
+    plan: free
     buildCommand: |
       pip install --upgrade pip
-      pip install -r requirements.txt
+      pip install Django gunicorn whitenoise
+      pip install dj-database-url psycopg2-binary
+      pip install -r requirements.txt || true
       python manage.py collectstatic --noinput
     startCommand: gunicorn fitness_system.wsgi:application
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: DEBUG
         value: "False"
       - key: SECRET_KEY
         generateValue: true
-      - key: PYTHON_VERSION
-        value: 3.10.11

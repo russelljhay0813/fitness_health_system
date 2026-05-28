@@ -1,10 +1,9 @@
 import os
-import dj_database_url
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security - Use environment variable for secret key
+# Security
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
@@ -13,6 +12,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '.onrender.com',
     'fitness-health-system.onrender.com',
+    '*',  # Allow all hosts temporarily
 ]
 
 # Application definition
@@ -23,7 +23,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Custom apps
     'users',
     'workouts',
     'nutrition',
@@ -62,7 +61,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fitness_system.wsgi.application'
 
-# Database - Use SQLite as fallback, PostgreSQL if available
+# Database - Simple SQLite configuration (simplified)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -70,14 +69,20 @@ DATABASES = {
     }
 }
 
-# Override with PostgreSQL if DATABASE_URL exists
-database_url = os.environ.get('DATABASE_URL')
-if database_url:
-    DATABASES['default'] = dj_database_url.config(
-        default=database_url,
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+# Try to use PostgreSQL if dj_database_url is available
+try:
+    import dj_database_url
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        DATABASES['default'] = dj_database_url.config(
+            default=database_url,
+            conn_max_age=600
+        )
+        print("Using PostgreSQL database")
+except ImportError:
+    print("dj_database_url not installed, using SQLite")
+except Exception as e:
+    print(f"Database error: {e}, using SQLite")
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -115,13 +120,5 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'https://*.render.com',
 ]
-
-# Security settings for production
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
