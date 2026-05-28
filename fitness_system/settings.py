@@ -4,16 +4,10 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here')
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+SECRET_KEY = 'django-insecure-your-secret-key-here-for-development'
+DEBUG = True  # Set to False in production
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '.onrender.com',
-    'fitness-health-system.onrender.com',
-    '*',  # Allow all hosts temporarily
-]
+ALLOWED_HOSTS = ['*']  # Allow all hosts for development
 
 # Application definition
 INSTALLED_APPS = [
@@ -23,6 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Custom apps
     'users',
     'workouts',
     'nutrition',
@@ -30,9 +25,10 @@ INSTALLED_APPS = [
     'core',
 ]
 
+# Comment out whitenoise if not installed
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',  # Comment this out for now
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,28 +57,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fitness_system.wsgi.application'
 
-# Database - Simple SQLite configuration (simplified)
+# Database - Simple SQLite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-# Try to use PostgreSQL if dj_database_url is available
-try:
-    import dj_database_url
-    database_url = os.environ.get('DATABASE_URL')
-    if database_url:
-        DATABASES['default'] = dj_database_url.config(
-            default=database_url,
-            conn_max_age=600
-        )
-        print("Using PostgreSQL database")
-except ImportError:
-    print("dj_database_url not installed, using SQLite")
-except Exception as e:
-    print(f"Database error: {e}, using SQLite")
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -97,17 +78,15 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# Comment out STATICFILES_DIRS if the folder doesn't exist
+# STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
-# WhiteNoise configuration
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Authentication
 AUTH_USER_MODEL = 'users.CustomUser'
@@ -115,10 +94,7 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
-# CSRF settings
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.onrender.com',
-    'https://*.render.com',
-]
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Create static directory if it doesn't exist
+os.makedirs(BASE_DIR / 'static', exist_ok=True)
